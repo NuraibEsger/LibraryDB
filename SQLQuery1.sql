@@ -75,7 +75,7 @@ SELECT * FROM AuthorsBooksJuction
 
 GO
 
---Creating View for to show id of books, name of books, count of book's page, author's name
+--This View is used for to show id of books, name of books, count of book's page, author's name
 CREATE VIEW BookAuthorView AS
 SELECT
     B.Id AS BookId,
@@ -92,7 +92,7 @@ GO
 SELECT * FROM BookAuthorView;
 
 GO
---Created procedure for show the books.id, books.name, books.pagecount, author's fullname by author's name
+--This procedure is used for show the books.id, books.name, books.pagecount, author's fullname by author's name
 CREATE PROCEDURE GetBooksByAuthorName
     @AuthorName VARCHAR(255)
 AS
@@ -117,6 +117,7 @@ EXEC GetBooksByAuthorName 'Nizami'
 
 GO
 
+--This Procedure is used for inserting datas to Authors table
 CREATE PROCEDURE InsertAuthors
 	@AuthorName VARCHAR(255),
 	@AuthorSurname VARCHAR(255)
@@ -134,6 +135,7 @@ EXEC InsertAuthors 'Nuraib','Esgerov'
 
 GO
 
+--This Procedure is used for updating datas in Authors table
 CREATE PROCEDURE UpdateAuthors
 	@AuthorId INT,
 	@AuthorName VARCHAR(255),
@@ -152,6 +154,7 @@ EXEC UpdateAuthors 16, 'Zilish', 'Zulfiqarli'
 
 GO
 
+--This Procedure is used for deleting datas from Authors table
 CREATE PROCEDURE DeleteAuthors
 	@AuthorId INT
 AS
@@ -166,6 +169,7 @@ EXEC DeleteAuthors 16
 
 GO
 
+--This View is used for show us the author's id, author's fullname, max count of author's books , max count of page
 CREATE VIEW AuthorBooksView AS
 SELECT
     A.Id AS AuthorId,
