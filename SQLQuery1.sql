@@ -1,13 +1,31 @@
-﻿use LibraryDB
---Creating database
+﻿--Creating database
 CREATE DATABASE LibraryDB
 
+GO
+
+use LibraryDB
 --Creating books table	
 CREATE TABLE Books(
 	Id INT PRIMARY KEY IDENTITY(1,1),
 	Name VARCHAR(100) CHECK(LEN(Name) BETWEEN 2 AND 100) NOT NULL,
 	PageCount INT CONSTRAINT PageCount CHECK (PageCount > 2) NOT NULL
 )
+
+--Creating Authors table
+CREATE TABLE Authors(
+	Id INT PRIMARY KEY IDENTITY(10,1),
+	Name VARCHAR(255) NOT NULL,
+	Surname VARCHAR(255) NOT NULL
+)
+
+--Creating AuthorsBooksJuction table which is used for many to many table between books and authors
+CREATE TABLE AuthorsBooksJuction(
+	Id INT PRIMARY KEY IDENTITY(20,1),
+	BooksId INT FOREIGN KEY REFERENCES Books(Id) NOT NULL,
+	AuthorsId INT FOREIGN KEY REFERENCES Authors(Id) NOT NULL
+)
+
+GO
 
 --Adding values to books table
 INSERT INTO Books
@@ -24,20 +42,6 @@ VALUES('Spare',416),
 ('Usta Zeynal',560),
 ('Rus qızı',260)
 
---Show all values of books table
-SELECT * FROM Books
-
-update Books
-set Name = 'Xosrov ve Shirin'
-where id = 5
-
---Creating Authors table
-CREATE TABLE Authors(
-	Id INT PRIMARY KEY IDENTITY(10,1),
-	Name VARCHAR(255) NOT NULL,
-	Surname VARCHAR(255) NOT NULL
-)
-
 --Adding values to Authors table
 INSERT INTO Authors
 VALUES('Nizami', 'Gencevi'),
@@ -47,15 +51,11 @@ VALUES('Nizami', 'Gencevi'),
 ('Abhay','Khalil'),
 ('Kasturi','Ray')
 
+--Show all values of books table
+SELECT * FROM Books
+
 --Show all values of the authors table
 SELECT * FROM Authors
-
---Creating AuthorsBooksJuction table which is used for many to many table between books and authors
-CREATE TABLE AuthorsBooksJuction(
-	Id INT PRIMARY KEY IDENTITY(20,1),
-	BooksId INT FOREIGN KEY REFERENCES Books(Id) NOT NULL,
-	AuthorsId INT FOREIGN KEY REFERENCES Authors(Id) NOT NULL
-)
 
 --Linking Books and Authors tables
 INSERT INTO AuthorsBooksJuction
@@ -73,8 +73,7 @@ VALUES(4,11),
 --Show all values of AuthorsBooksJuction table
 SELECT * FROM AuthorsBooksJuction
 
-
-
+GO
 
 --Creating View for to show id of books, name of books, count of book's page, author's name
 CREATE VIEW BookAuthorView AS
@@ -88,8 +87,11 @@ FROM
 JOIN Books B ON ABJ.BooksId = B.Id
 JOIN Authors A ON ABJ.AuthorsId = A.Id;
 
+GO
+
 SELECT * FROM BookAuthorView;
 
+GO
 --Created procedure for show the books.id, books.name, books.pagecount, author's fullname by author's name
 CREATE PROCEDURE GetBooksByAuthorName
     @AuthorName VARCHAR(255)
@@ -113,6 +115,8 @@ END;
 --Show the all books by author's name
 EXEC GetBooksByAuthorName 'Nizami'
 
+GO
+
 CREATE PROCEDURE InsertAuthors
 	@AuthorName VARCHAR(255),
 	@AuthorSurname VARCHAR(255)
@@ -124,19 +128,11 @@ BEGIN
 	SELECT * FROM Authors
 END
 
+GO
 
 EXEC InsertAuthors 'Nuraib','Esgerov'
 
-CREATE PROCEDURE DeleteAuthors
-	@AuthorName VARCHAR(255),
-	@AuthorSurname VARCHAR(255)
-AS
-BEGIN
-	Delete from Authors WHERE Authors.Name = @AuthorName AND Authors.Surname = @AuthorSurname
-	SELECT * FROM Authors
-END
-
-EXEC DeleteAuthors'Nuraib','Esgerov'
+GO
 
 CREATE PROCEDURE UpdateAuthors
 	@AuthorId INT,
@@ -150,7 +146,25 @@ BEGIN
 	SELECT * FROM Authors
 END
 
-EXEC UpdateAuthors 19, 'sas', 'asd'
+GO
+
+EXEC UpdateAuthors 16, 'Zilish', 'Zulfiqarli'
+
+GO
+
+CREATE PROCEDURE DeleteAuthors
+	@AuthorId INT
+AS
+BEGIN
+	Delete from Authors WHERE Authors.Id = @AuthorId
+	SELECT * FROM Authors
+END
+
+GO
+
+EXEC DeleteAuthors 16
+
+GO
 
 CREATE VIEW AuthorBooksView AS
 SELECT
@@ -167,4 +181,5 @@ INNER JOIN
 GROUP BY
     A.Id, A.Name, A.Surname;
 
+GO
 SELECT * FROM AuthorBooksView
