@@ -27,6 +27,10 @@ VALUES('Spare',416),
 --Show all values of books table
 SELECT * FROM Books
 
+update Books
+set Name = 'Xosrov ve Shirin'
+where id = 5
+
 --Creating Authors table
 CREATE TABLE Authors(
 	Id INT PRIMARY KEY IDENTITY(10,1),
@@ -70,6 +74,8 @@ VALUES(4,11),
 SELECT * FROM AuthorsBooksJuction
 
 
+
+
 --Creating View for to show id of books, name of books, count of book's page, author's name
 CREATE VIEW BookAuthorView AS
 SELECT
@@ -84,3 +90,81 @@ JOIN Authors A ON ABJ.AuthorsId = A.Id;
 
 SELECT * FROM BookAuthorView;
 
+--Created procedure for show the books.id, books.name, books.pagecount, author's fullname by author's name
+CREATE PROCEDURE GetBooksByAuthorName
+    @AuthorName VARCHAR(255)
+AS
+BEGIN
+    SELECT
+        B.Id AS BookId,
+        B.Name AS BookName,
+        B.PageCount,
+        A.Name + ' ' + A.Surname AS FullName
+    FROM
+        Books B
+    INNER JOIN
+        AuthorsBooksJuction ABJ ON B.Id = ABJ.BooksId
+    INNER JOIN
+        Authors A ON ABJ.AuthorsId = A.Id
+    WHERE
+        A.Name = @AuthorName;
+END;
+
+--Show the all books by author's name
+EXEC GetBooksByAuthorName 'Nizami'
+
+CREATE PROCEDURE InsertAuthors
+	@AuthorName VARCHAR(255),
+	@AuthorSurname VARCHAR(255)
+AS
+BEGIN
+	INSERT INTO Authors
+	VALUES(@AuthorName, @AuthorSurname)
+
+	SELECT * FROM Authors
+END
+
+
+EXEC InsertAuthors 'Nuraib','Esgerov'
+
+CREATE PROCEDURE DeleteAuthors
+	@AuthorName VARCHAR(255),
+	@AuthorSurname VARCHAR(255)
+AS
+BEGIN
+	Delete from Authors WHERE Authors.Name = @AuthorName AND Authors.Surname = @AuthorSurname
+	SELECT * FROM Authors
+END
+
+EXEC DeleteAuthors'Nuraib','Esgerov'
+
+CREATE PROCEDURE UpdateAuthors
+	@AuthorId INT,
+	@AuthorName VARCHAR(255),
+	@AuthorSurname VARCHAR(255)
+AS
+BEGIN
+	Update Authors
+	SET Name = @AuthorName, Surname = @AuthorSurname
+	WHERE Authors.Id = @AuthorId
+	SELECT * FROM Authors
+END
+
+EXEC UpdateAuthors 19, 'sas', 'asd'
+
+CREATE VIEW AuthorBooksView AS
+SELECT
+    A.Id AS AuthorId,
+    A.Name + ' ' + A.Surname AS FullName,
+    COUNT(ABJ.BooksId) AS BooksCount,
+    MAX(B.PageCount) AS MaxPageCount
+FROM
+    Authors A
+INNER JOIN
+    AuthorsBooksJuction ABJ ON A.Id = ABJ.AuthorsId
+INNER JOIN
+    Books B ON ABJ.BooksId = B.Id
+GROUP BY
+    A.Id, A.Name, A.Surname;
+
+SELECT * FROM AuthorBooksView
